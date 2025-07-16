@@ -20,7 +20,7 @@
 
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2024.0.x-lightgrey.svg)](https://spring.io/projects/spring-cloud)
+[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2023.0.1-lightgrey.svg)](https://spring.io/projects/spring-cloud)
 [![Docker](https://img.shields.io/badge/Docker-🐳-blue.svg)](https://www.docker.com/)
 [![Maven](https://img.shields.io/badge/Maven-Build-red.svg)](https://maven.apache.org/)
 

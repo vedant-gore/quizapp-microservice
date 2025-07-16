@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  service-registry:
+    build: ./service-registry
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - quiz-network
+
+  question-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 0000
+      POSTGRES_DB: questiondb
+    ports:
+      - "5433:5432"
+    volumes:
+      - question-data:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+
+  quiz-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 0000
+      POSTGRES_DB: quizdb
+    ports:
+      - "5434:5432"
+    volumes:
+      - quiz-data:/var/lib/postgresql/data
+    networks:
+      - quiz-network
+
+  question-service:
+    build: ./question-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://question-db:5432/questiondb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 0000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka
+      EUREKA_INSTANCE_HOSTNAME: question-service
+      SPRING_CLOUD_LOADBALANCER_RETRY_ENABLED: true
+    depends_on:
+      - question-db
+      - service-registry
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - quiz-network
+
+  quiz-service:
+    build: ./quiz-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://quiz-db:5432/quizdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 0000
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka
+      EUREKA_INSTANCE_HOSTNAME: quiz-service
+      SPRING_CLOUD_LOADBALANCER_RETRY_ENABLED: true
+    depends_on:
+      - quiz-db
+      - service-registry
+    restart: on-failure
+    ports:
+      - "8090:8090"
+    networks:
+      - quiz-network
+
+  api-gateway:
+    build: ./api-gateway
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka
+      EUREKA_INSTANCE_HOSTNAME: api-gateway
+      SPRING_CLOUD_LOADBALANCER_RETRY_ENABLED: true
+    depends_on:
+      - service-registry
+      - quiz-service
+      - question-service
+    restart: on-failure
+    ports:
+      - "8081:8765"
+    networks:
+      - quiz-network
+
+volumes:
+  question-data:
+  quiz-data:
+
+networks:
+  quiz-network:
